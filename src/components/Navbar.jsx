@@ -3,7 +3,14 @@ import { Link } from 'react-router-dom';
 import { StarWarsContext } from '../context/StarWarsContext';
 
 const Navbar = () => {
-  const { favorites } = useContext(StarWarsContext);
+  const { favorites, toggleFavorite } = useContext(StarWarsContext);
+
+  // Flatten favorites for easier rendering
+  const allFavorites = [
+    ...favorites.people.map(item => ({ ...item, type: 'people' })),
+    ...favorites.planets.map(item => ({ ...item, type: 'planets' })),
+    ...favorites.vehicles.map(item => ({ ...item, type: 'vehicles' }))
+  ];
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -39,24 +46,29 @@ const Navbar = () => {
             >
               Favorites 
               <span className="badge bg-light text-dark ms-2">
-                {favorites.length}
+                {allFavorites.length}
               </span>
             </button>
             <ul className="dropdown-menu dropdown-menu-end">
-              {favorites.length === 0 ? (
+              {allFavorites.length === 0 ? (
                 <li>
                   <span className="dropdown-item text-muted">
                     No favorites yet
                   </span>
                 </li>
               ) : (
-                favorites.map((item) => (
-                  <li key={item.uid}>
+                allFavorites.map((item) => (
+                  <li key={`${item.type}-${item.uid}`}>
                     <div className="dropdown-item d-flex justify-content-between align-items-center">
-                      {item.name}
+                      <Link 
+                        to={`/${item.type}/${item.uid}`} 
+                        className="text-decoration-none text-dark flex-grow-1"
+                      >
+                        {item.name}
+                      </Link>
                       <button 
                         className="btn btn-sm btn-outline-danger"
-                        onClick={() => removeFromFavorites(item.uid)}
+                        onClick={() => toggleFavorite(item, item.type)}
                       >
                         <i className="fas fa-trash"></i>
                       </button>

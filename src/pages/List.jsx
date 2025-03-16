@@ -75,8 +75,8 @@ const List = ({ type }) => {
                   Learn More
                 </Link>
                 <button 
-                  className="btn btn-outline-danger"
-                  onClick={() => addToFavorites(item)}
+                  className={`btn ${item.isFavorite ? 'btn-danger' : 'btn-outline-danger'}`}
+                  onClick={() => toggleFavorite(item, type)}
                 >
                   <i className="fas fa-heart"></i>
                 </button>

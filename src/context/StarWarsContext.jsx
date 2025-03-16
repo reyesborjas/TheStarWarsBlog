@@ -6,7 +6,11 @@ export const StarWarsProvider = ({ children }) => {
   const [people, setPeople] = useState([]);
   const [planets, setPlanets] = useState([]);
   const [vehicles, setVehicles] = useState([]);
-  const [favorites, setFavorites] = useState([]);
+  const [favorites, setFavorites] = useState({
+    people: [],
+    planets: [],
+    vehicles: []
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -23,7 +27,8 @@ export const StarWarsProvider = ({ children }) => {
           const detailData = await detailResponse.json();
           return {
             ...person,
-            details: detailData.result.properties
+            details: detailData.result.properties,
+            isFavorite: false
           };
         })
       );
@@ -48,7 +53,8 @@ export const StarWarsProvider = ({ children }) => {
           const detailData = await detailResponse.json();
           return {
             ...planet,
-            details: detailData.result.properties
+            details: detailData.result.properties,
+            isFavorite: false
           };
         })
       );
@@ -73,7 +79,8 @@ export const StarWarsProvider = ({ children }) => {
           const detailData = await detailResponse.json();
           return {
             ...vehicle,
-            details: detailData.result.properties
+            details: detailData.result.properties,
+            isFavorite: false
           };
         })
       );
@@ -85,17 +92,72 @@ export const StarWarsProvider = ({ children }) => {
     }
   };
 
-  // Add to favorites
-  const addToFavorites = (item) => {
-    // Check if item is already in favorites
-    if (!favorites.some(fav => fav.uid === item.uid)) {
-      setFavorites([...favorites, item]);
+  // Toggle favorite
+  const toggleFavorite = (item, type) => {
+    switch(type) {
+      case 'people':
+        setPeople(prevPeople => 
+          prevPeople.map(p => 
+            p.uid === item.uid ? { ...p, isFavorite: !p.isFavorite } : p
+          )
+        );
+        setFavorites(prevFavorites => {
+          const updatedFavorites = { ...prevFavorites };
+          const index = updatedFavorites[type].findIndex(f => f.uid === item.uid);
+          if (index !== -1) {
+            // Remove from favorites
+            updatedFavorites[type].splice(index, 1);
+          } else {
+            // Add to favorites
+            updatedFavorites[type].push(item);
+          }
+          return updatedFavorites;
+        });
+        break;
+      
+      case 'planets':
+        setPlanets(prevPlanets => 
+          prevPlanets.map(p => 
+            p.uid === item.uid ? { ...p, isFavorite: !p.isFavorite } : p
+          )
+        );
+        setFavorites(prevFavorites => {
+          const updatedFavorites = { ...prevFavorites };
+          const index = updatedFavorites[type].findIndex(f => f.uid === item.uid);
+          if (index !== -1) {
+            // Remove from favorites
+            updatedFavorites[type].splice(index, 1);
+          } else {
+            // Add to favorites
+            updatedFavorites[type].push(item);
+          }
+          return updatedFavorites;
+        });
+        break;
+      
+      case 'vehicles':
+        setVehicles(prevVehicles => 
+          prevVehicles.map(v => 
+            v.uid === item.uid ? { ...v, isFavorite: !v.isFavorite } : v
+          )
+        );
+        setFavorites(prevFavorites => {
+          const updatedFavorites = { ...prevFavorites };
+          const index = updatedFavorites[type].findIndex(f => f.uid === item.uid);
+          if (index !== -1) {
+            // Remove from favorites
+            updatedFavorites[type].splice(index, 1);
+          } else {
+            // Add to favorites
+            updatedFavorites[type].push(item);
+          }
+          return updatedFavorites;
+        });
+        break;
+      
+      default:
+        console.error('Invalid type');
     }
-  };
-
-  // Remove from favorites
-  const removeFromFavorites = (itemId) => {
-    setFavorites(favorites.filter(fav => fav.uid !== itemId));
   };
 
   // Fetch all data when component mounts
@@ -118,8 +180,7 @@ export const StarWarsProvider = ({ children }) => {
         favorites, 
         loading, 
         error, 
-        addToFavorites, 
-        removeFromFavorites 
+        toggleFavorite 
       }}
     >
       {children}

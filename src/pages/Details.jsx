@@ -85,8 +85,8 @@ const Details = ({ type }) => {
             <div className="card-header bg-dark text-white d-flex justify-content-between align-items-center">
               <h2>{item.name}</h2>
               <button 
-                className="btn btn-outline-light"
-                onClick={() => addToFavorites(item)}
+                className={`btn ${item.isFavorite ? 'btn-danger' : 'btn-outline-light'}`}
+                onClick={() => toggleFavorite(item, type)}
               >
                 <i className="fas fa-heart"></i>
               </button>

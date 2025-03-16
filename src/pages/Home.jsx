@@ -28,8 +28,8 @@ const Home = () => {
                       {item.name}
                     </Link>
                     <button 
-                      className="btn btn-sm btn-outline-primary"
-                      onClick={() => addToFavorites(item)}
+                      className={`btn btn-sm ${item.isFavorite ? 'btn-danger' : 'btn-outline-primary'}`}
+                      onClick={() => toggleFavorites(item, path)}
                     >
                       <i className="fas fa-heart"></i>
                     </button>
