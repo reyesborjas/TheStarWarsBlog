@@ -1,11 +1,17 @@
+import React from 'react';
+
 export const Footer = () => (
-	<footer className="footer mt-auto py-3 text-center">
-		<p>
-			Check the <a target="_blank" href="https://4geeks.com/docs/start/start-react-advanced-project">template documentation</a> <i class="fa-solid fa-file"></i> for help.
-		</p>
-		<p>
-			Made with <i className="fa fa-heart text-danger" /> by{" "}
-			<a href="http://www.4geeksacademy.com">4Geeks Academy</a>
-		</p>
-	</footer>
+  <footer className="footer py-3 text-center bg-dark text-warning border-top border-warning">
+    <p>
+      <i className="fab fa-jedi-order me-2"></i>
+      May the Force be with you
+      <i className="fab fa-jedi-order ms-2"></i>
+    </p>
+    <p>
+      <small>
+        Star Wars and all associated names are copyright Lucasfilm ltd.
+        This site is for educational purposes only.
+      </small>
+    </p>
+  </footer>
 );

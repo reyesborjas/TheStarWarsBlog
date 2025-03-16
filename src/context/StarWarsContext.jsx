@@ -14,21 +14,33 @@ export const StarWarsProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Cargar favoritos desde localStorage al inicio
+  useEffect(() => {
+    const storedFavorites = localStorage.getItem('starWarsAppFavorites');
+    if (storedFavorites) {
+      try {
+        setFavorites(JSON.parse(storedFavorites));
+        console.log('Favoritos cargados desde localStorage:', JSON.parse(storedFavorites));
+      } catch (e) {
+        console.error('Error al cargar favoritos:', e);
+      }
+    }
+  }, []);
+
   // Fetch people from SWAPI
   const fetchPeople = async () => {
     try {
       const response = await fetch('https://www.swapi.tech/api/people');
       const data = await response.json();
       
-      // Fetch details for each person
+      // Fetch details for each person (limit to 10 for performance)
       const peopleDetails = await Promise.all(
-        data.results.map(async (person) => {
+        data.results.slice(0, 10).map(async (person) => {
           const detailResponse = await fetch(person.url);
           const detailData = await detailResponse.json();
           return {
             ...person,
-            details: detailData.result.properties,
-            isFavorite: false
+            details: detailData.result.properties
           };
         })
       );
@@ -46,15 +58,14 @@ export const StarWarsProvider = ({ children }) => {
       const response = await fetch('https://www.swapi.tech/api/planets');
       const data = await response.json();
       
-      // Fetch details for each planet
+      // Fetch details for each planet (limit to 10 for performance)
       const planetDetails = await Promise.all(
-        data.results.map(async (planet) => {
+        data.results.slice(0, 10).map(async (planet) => {
           const detailResponse = await fetch(planet.url);
           const detailData = await detailResponse.json();
           return {
             ...planet,
-            details: detailData.result.properties,
-            isFavorite: false
+            details: detailData.result.properties
           };
         })
       );
@@ -72,15 +83,14 @@ export const StarWarsProvider = ({ children }) => {
       const response = await fetch('https://www.swapi.tech/api/vehicles');
       const data = await response.json();
       
-      // Fetch details for each vehicle
+      // Fetch details for each vehicle (limit to 10 for performance)
       const vehicleDetails = await Promise.all(
-        data.results.map(async (vehicle) => {
+        data.results.slice(0, 10).map(async (vehicle) => {
           const detailResponse = await fetch(vehicle.url);
           const detailData = await detailResponse.json();
           return {
             ...vehicle,
-            details: detailData.result.properties,
-            isFavorite: false
+            details: detailData.result.properties
           };
         })
       );
@@ -92,71 +102,58 @@ export const StarWarsProvider = ({ children }) => {
     }
   };
 
-  // Toggle favorite
+  // Toggle favorite (simple implementation)
   const toggleFavorite = (item, type) => {
-    switch(type) {
-      case 'people':
-        setPeople(prevPeople => 
-          prevPeople.map(p => 
-            p.uid === item.uid ? { ...p, isFavorite: !p.isFavorite } : p
-          )
-        );
-        setFavorites(prevFavorites => {
-          const updatedFavorites = { ...prevFavorites };
-          const index = updatedFavorites[type].findIndex(f => f.uid === item.uid);
-          if (index !== -1) {
-            // Remove from favorites
-            updatedFavorites[type].splice(index, 1);
-          } else {
-            // Add to favorites
-            updatedFavorites[type].push(item);
-          }
-          return updatedFavorites;
-        });
-        break;
+    console.log('Toggle favorite llamado con:', item, type);
+    
+    // Check if this item is already in favorites
+    const isAlreadyFavorite = favorites[type].some(fav => fav.uid === item.uid);
+    console.log('¿Ya está en favoritos?:', isAlreadyFavorite);
+    
+    let updatedFavorites;
+    
+    if (isAlreadyFavorite) {
+      // Remove from favorites
+      updatedFavorites = {
+        ...favorites,
+        [type]: favorites[type].filter(fav => fav.uid !== item.uid)
+      };
+      console.log('Eliminando de favoritos');
+    } else {
+      // Add to favorites - create a simple object to avoid circular references
+      const favoriteItem = {
+        uid: item.uid,
+        name: item.name,
+        url: item.url || `https://www.swapi.tech/api/${type}/${item.uid}`
+      };
       
-      case 'planets':
-        setPlanets(prevPlanets => 
-          prevPlanets.map(p => 
-            p.uid === item.uid ? { ...p, isFavorite: !p.isFavorite } : p
-          )
-        );
-        setFavorites(prevFavorites => {
-          const updatedFavorites = { ...prevFavorites };
-          const index = updatedFavorites[type].findIndex(f => f.uid === item.uid);
-          if (index !== -1) {
-            // Remove from favorites
-            updatedFavorites[type].splice(index, 1);
-          } else {
-            // Add to favorites
-            updatedFavorites[type].push(item);
-          }
-          return updatedFavorites;
-        });
-        break;
-      
-      case 'vehicles':
-        setVehicles(prevVehicles => 
-          prevVehicles.map(v => 
-            v.uid === item.uid ? { ...v, isFavorite: !v.isFavorite } : v
-          )
-        );
-        setFavorites(prevFavorites => {
-          const updatedFavorites = { ...prevFavorites };
-          const index = updatedFavorites[type].findIndex(f => f.uid === item.uid);
-          if (index !== -1) {
-            // Remove from favorites
-            updatedFavorites[type].splice(index, 1);
-          } else {
-            // Add to favorites
-            updatedFavorites[type].push(item);
-          }
-          return updatedFavorites;
-        });
-        break;
-      
-      default:
-        console.error('Invalid type');
+      updatedFavorites = {
+        ...favorites,
+        [type]: [...favorites[type], favoriteItem]
+      };
+      console.log('Agregando a favoritos:', favoriteItem);
+    }
+    
+    // Update state
+    setFavorites(updatedFavorites);
+    
+    // Save to localStorage
+    localStorage.setItem('starWarsAppFavorites', JSON.stringify(updatedFavorites));
+    console.log('Favoritos actualizados:', updatedFavorites);
+    
+    return !isAlreadyFavorite; // Return the new favorite state
+  };
+
+  // Explicitly named functions for adding and removing favorites (useful for Navbar)
+  const addToFavorites = (item, type) => {
+    if (!favorites[type].some(fav => fav.uid === item.uid)) {
+      toggleFavorite(item, type);
+    }
+  };
+
+  const removeFromFavorites = (item, type) => {
+    if (favorites[type].some(fav => fav.uid === item.uid)) {
+      toggleFavorite(item, type);
     }
   };
 
@@ -180,7 +177,9 @@ export const StarWarsProvider = ({ children }) => {
         favorites, 
         loading, 
         error, 
-        toggleFavorite 
+        toggleFavorite,
+        addToFavorites,
+        removeFromFavorites
       }}
     >
       {children}

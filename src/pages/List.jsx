@@ -1,42 +1,43 @@
 import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
 import { StarWarsContext } from '../context/StarWarsContext';
+import { Card } from '../components/Card';
 
 const List = ({ type }) => {
-  const { people, planets, vehicles, loading, addToFavorites } = useContext(StarWarsContext);
+  const { people, planets, vehicles, loading, favorites } = useContext(StarWarsContext);
 
   let items = [];
+  let title = '';
+
   switch (type) {
     case 'people':
-      items = people;
+      items = people.map(item => ({
+        ...item,
+        isFavorite: favorites.people.some(fav => fav.uid === item.uid)
+      }));
+      title = 'Characters';
       break;
     case 'planets':
-      items = planets;
+      items = planets.map(item => ({
+        ...item,
+        isFavorite: favorites.planets.some(fav => fav.uid === item.uid)
+      }));
+      title = 'Planets';
       break;
     case 'vehicles':
-      items = vehicles;
+      items = vehicles.map(item => ({
+        ...item,
+        isFavorite: favorites.vehicles.some(fav => fav.uid === item.uid)
+      }));
+      title = 'Vehicles';
       break;
     default:
-      return <div>Invalid type</div>;
+      return <div className="alert alert-danger">Invalid type</div>;
   }
-
-  const renderImage = (id) => {
-    switch (type) {
-      case 'people':
-        return `https://starwars-visualguide.com/assets/img/characters/${id}.jpg`;
-      case 'planets':
-        return `https://starwars-visualguide.com/assets/img/planets/${id}.jpg`;
-      case 'vehicles':
-        return `https://starwars-visualguide.com/assets/img/vehicles/${id}.jpg`;
-      default:
-        return 'https://via.placeholder.com/400x600.png?text=No+Image';
-    }
-  };
 
   if (loading) {
     return (
       <div className="container text-center mt-5">
-        <div className="spinner-border text-light" role="status">
+        <div className="spinner-border text-warning" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
       </div>
@@ -45,43 +46,13 @@ const List = ({ type }) => {
 
   return (
     <div className="container py-4">
-      <h1 className="text-center mb-4 text-white text-capitalize">
-        {type} of Star Wars
+      <h1 className="text-center mb-4 text-capitalize text-warning">
+        {title} of Star Wars
       </h1>
-      <div className="row row-cols-1 row-cols-md-3 g-4">
+      <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {items.map((item) => (
-          <div key={item.uid} className="col">
-            <div className="card h-100 shadow-sm">
-              <img 
-                src={renderImage(item.uid)} 
-                className="card-img-top" 
-                alt={item.name}
-                onError={(e) => {
-                  e.target.src = 'https://via.placeholder.com/400x600.png?text=No+Image';
-                }}
-                style={{ 
-                  height: '300px', 
-                  objectFit: 'cover' 
-                }}
-              />
-              <div className="card-body">
-                <h5 className="card-title">{item.name}</h5>
-              </div>
-              <div className="card-footer d-flex justify-content-between align-items-center">
-                <Link 
-                  to={`/${type}/${item.uid}`} 
-                  className="btn btn-primary"
-                >
-                  Learn More
-                </Link>
-                <button 
-                  className={`btn ${item.isFavorite ? 'btn-danger' : 'btn-outline-danger'}`}
-                  onClick={() => toggleFavorite(item, type)}
-                >
-                  <i className="fas fa-heart"></i>
-                </button>
-              </div>
-            </div>
+          <div key={item.uid} className="col d-flex justify-content-center">
+            <Card item={item} type={type} />
           </div>
         ))}
       </div>

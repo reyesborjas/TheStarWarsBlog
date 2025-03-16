@@ -1,32 +1,71 @@
-import React, { useContext } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useContext, useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { StarWarsContext } from '../context/StarWarsContext';
 
 const Details = ({ type }) => {
-  const { people, planets, vehicles, addToFavorites } = useContext(StarWarsContext);
+  const { people, planets, vehicles, toggleFavorite, favorites, loading } = useContext(StarWarsContext);
   const { id } = useParams();
+  const navigate = useNavigate();
+  const [item, setItem] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  let item, imageUrl;
-  switch (type) {
-    case 'people':
-      item = people.find(p => p.uid === id);
-      imageUrl = `https://starwars-visualguide.com/assets/img/characters/${id}.jpg`;
-      break;
-    case 'planets':
-      item = planets.find(p => p.uid === id);
-      imageUrl = `https://starwars-visualguide.com/assets/img/planets/${id}.jpg`;
-      break;
-    case 'vehicles':
-      item = vehicles.find(v => v.uid === id);
-      imageUrl = `https://starwars-visualguide.com/assets/img/vehicles/${id}.jpg`;
-      break;
-    default:
-      return <div>Not found</div>;
-  }
+  // Check if item is in favorites
+  const isFavorite = favorites[type]?.some(fav => fav.uid === id);
 
-  if (!item) return <div>Loading...</div>;
+  useEffect(() => {
+    const findItem = () => {
+      let foundItem;
+      switch (type) {
+        case 'people':
+          foundItem = people.find(p => p.uid === id);
+          break;
+        case 'planets':
+          foundItem = planets.find(p => p.uid === id);
+          break;
+        case 'vehicles':
+          foundItem = vehicles.find(v => v.uid === id);
+          break;
+        default:
+          navigate('/');
+          return;
+      }
+
+      if (foundItem) {
+        setItem(foundItem);
+        setIsLoading(false);
+      } else if (!loading) {
+        // If data is loaded but item not found, fetch it directly
+        fetchItemDetails();
+      }
+    };
+
+    const fetchItemDetails = async () => {
+      try {
+        const response = await fetch(`https://www.swapi.tech/api/${type}/${id}`);
+        const data = await response.json();
+        
+        if (data.result) {
+          setItem({
+            uid: id,
+            name: data.result.properties.name || data.result.name,
+            details: data.result.properties
+          });
+        }
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching item details:', error);
+        setIsLoading(false);
+      }
+    };
+
+    if (people.length > 0 || planets.length > 0 || vehicles.length > 0) {
+      findItem();
+    }
+  }, [id, type, people, planets, vehicles, loading, navigate]);
 
   const renderDetails = () => {
+    if (!item || !item.details) return null;
+
     switch (type) {
       case 'people':
         return (
@@ -67,32 +106,55 @@ const Details = ({ type }) => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="container mt-5 d-flex justify-content-center">
+        <div className="spinner-border text-warning" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!item) {
+    return (
+      <div className="container mt-5">
+        <div className="alert alert-warning">
+          Item not found. <a href="/" className="alert-link">Return to Home</a>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mt-4">
       <div className="row">
-        <div className="col-md-6">
-          <img 
-            src={imageUrl} 
-            alt={item.name} 
-            className="img-fluid rounded shadow" 
-            onError={(e) => {
-              e.target.src = 'https://via.placeholder.com/400x600.png?text=No+Image';
-            }}
-          />
-        </div>
-        <div className="col-md-6">
-          <div className="card">
-            <div className="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <div className="col-md-12">
+          <div className="card bg-dark text-warning">
+            <div className="card-header bg-dark text-warning d-flex justify-content-between align-items-center">
               <h2>{item.name}</h2>
               <button 
-                className={`btn ${item.isFavorite ? 'btn-danger' : 'btn-outline-light'}`}
+                className={`btn ${isFavorite ? 'btn-danger' : 'btn-outline-warning'}`}
                 onClick={() => toggleFavorite(item, type)}
               >
                 <i className="fas fa-heart"></i>
               </button>
             </div>
             <div className="card-body">
-              {renderDetails()}
+              <div className="row">
+                <div className="col-md-12">
+                  {renderDetails()}
+                </div>
+              </div>
+            </div>
+            <div className="card-footer">
+              <button 
+                className="btn btn-warning" 
+                onClick={() => navigate(-1)}
+              >
+                <i className="fas fa-arrow-left me-2"></i>
+                Back
+              </button>
             </div>
           </div>
         </div>

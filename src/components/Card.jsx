@@ -1,20 +1,36 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
-import { useContext } from "react";
-import { Context } from "../store/appContext";
+import { StarWarsContext } from "../context/StarWarsContext";
 
 export const Card = ({ item, type }) => {
-    const { actions } = useContext(Context);
+    const { toggleFavorite, favorites } = useContext(StarWarsContext);
+    
+    // Check if this item is in favorites
+    const isFavorite = favorites[type]?.some(fav => fav.uid === item.uid);
+    
+    const handleToggleFavorite = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log("Intentando agregar/quitar favorito:", item.name);
+        toggleFavorite(item, type);
+    };
 
     return (
-        <div className="card" style={{ width: "18rem" }}>
-            <img src={`https://starwars-visualguide.com/assets/img/${type}/${item.uid}.jpg`} className="card-img-top" alt={item.name} />
+        <div className="card bg-dark text-warning" style={{ width: "18rem", marginBottom: "20px" }}>
             <div className="card-body">
                 <h5 className="card-title">{item.name}</h5>
-                <Link to={`/${type}/${item.uid}`} className="btn btn-primary">Learn More</Link>
-                <button className="btn btn-warning ms-2" onClick={() => actions.addFavorite(item.name)}>
-                    ❤️
-                </button>
+                <div className="d-flex justify-content-between mt-3">
+                    <Link to={`/${type}/${item.uid}`} className="btn btn-primary">
+                        Learn More
+                    </Link>
+                    <button 
+                        className={`btn ${isFavorite ? 'btn-danger' : 'btn-outline-danger'}`}
+                        onClick={handleToggleFavorite}
+                        aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                    >
+                        <i className="fas fa-heart"></i>
+                    </button>
+                </div>
             </div>
         </div>
     );
