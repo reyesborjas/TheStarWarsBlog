@@ -1,0 +1,96 @@
+body {
+    background-color: #000;
+    color: #FFD700; /* Star Wars gold text */
+    font-family: 'Arial', sans-serif;
+  }
+  
+  .card {
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 2px solid #FFD700;
+    color: #fff;
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+  }
+  
+  .card-header {
+    background-color: rgba(0, 0, 0, 0.8);
+    border-bottom: 1px solid #FFD700;
+  }
+  
+  .btn-primary {
+    background-color: #FFD700;
+    border-color: #FFD700;
+    color: #000;
+  }
+  
+  .btn-primary:hover {
+    background-color: #FFC700;
+    border-color: #FFC700;
+  }
+  
+  .btn-outline-danger {
+    color: #FFD700;
+    border-color: #FFD700;
+  }
+  
+  .btn-outline-danger:hover {
+    background-color: #FFD700;
+    color: #000;
+  }
+  
+  .navbar {
+    background-color: rgba(0, 0, 0, 0.9) !important;
+    border-bottom: 2px solid #FFD700;
+  }
+  
+  .navbar-brand {
+    color: #FFD700 !important;
+    font-weight: bold;
+  }
+  
+  .nav-link {
+    color: #fff !important;
+    transition: color 0.3s ease;
+  }
+  
+  .nav-link:hover {
+    color: #FFD700 !important;
+  }
+  
+  /* Star Wars Scrolling Text Effect */
+  .crawl {
+    position: relative;
+    perspective: 500px;
+    height: 300px;
+    overflow: hidden;
+  }
+  
+  .crawl-content {
+    position: absolute;
+    top: 100%;
+    transform-origin: 50% 100%;
+    transform: rotateX(60deg);
+    animation: crawl 30s linear;
+  }
+  
+  @keyframes crawl {
+    0% {
+      top: 100%;
+      transform: rotateX(60deg) translateZ(0);
+    }
+    100% {
+      top: -200%;
+      transform: rotateX(60deg) translateZ(-2500px);
+    }
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .card-img-top {
+      height: 200px;
+    }
+  }

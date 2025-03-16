@@ -1,15 +1,22 @@
-import { Outlet } from "react-router-dom/dist"
-import ScrollToTop from "../components/ScrollToTop"
-import { Navbar } from "../components/Navbar"
-import { Footer } from "../components/Footer"
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+import { StarWarsProvider } from '../context/StarWarsContext';
 
-// Base component that maintains the navbar and footer throughout the page and the scroll to top functionality.
-export const Layout = () => {
-    return (
-        <ScrollToTop>
-            <Navbar />
-                <Outlet />
-            <Footer />
-        </ScrollToTop>
-    )
-}
+const Layout = () => {
+  return (
+    <StarWarsProvider>
+      <div 
+        style={{ 
+          background: 'linear-gradient(to right, #000000, #434343)', 
+          minHeight: '100vh' 
+        }}
+      >
+        <Navbar />
+        <Outlet />
+      </div>
+    </StarWarsProvider>
+  );
+};
+
+export default Layout;

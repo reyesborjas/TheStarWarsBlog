@@ -1,33 +1,75 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { useContext } from "react";
-import { Context } from "../store/appContext";
+import React, { useContext } from 'react';
+import { Link } from 'react-router-dom';
+import { StarWarsContext } from '../context/StarWarsContext';
 
-export const Navbar = () => {
-    const { store, actions } = useContext(Context);
-    
-    return (
-        <nav className="navbar navbar-dark bg-dark mb-3">
-            <Link to="/" className="navbar-brand ms-3">Star Wars Blog</Link>
-            <div className="ml-auto me-3">
-                <div className="btn-group">
-                    <button className="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        Favorites ({store.favorites.length})
-                    </button>
-                    <ul className="dropdown-menu">
-                        {store.favorites.length === 0 ? (
-                            <li className="dropdown-item">No favorites</li>
-                        ) : (
-                            store.favorites.map((fav, index) => (
-                                <li key={index} className="dropdown-item d-flex justify-content-between">
-                                    {fav}
-                                    <button className="btn btn-danger btn-sm" onClick={() => actions.removeFavorite(fav)}>&times;</button>
-                                </li>
-                            ))
-                        )}
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    );
+const Navbar = () => {
+  const { favorites } = useContext(StarWarsContext);
+
+  return (
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div className="container">
+        <Link className="navbar-brand" to="/">
+          Star Wars Blog
+        </Link>
+        <button 
+          className="navbar-toggler" 
+          type="button" 
+          data-bs-toggle="collapse" 
+          data-bs-target="#navbarNav"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
+        <div className="collapse navbar-collapse" id="navbarNav">
+          <ul className="navbar-nav me-auto">
+            <li className="nav-item">
+              <Link className="nav-link" to="/people">Characters</Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/planets">Planets</Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/vehicles">Vehicles</Link>
+            </li>
+          </ul>
+          <div className="dropdown">
+            <button 
+              className="btn btn-secondary dropdown-toggle" 
+              type="button" 
+              data-bs-toggle="dropdown"
+            >
+              Favorites 
+              <span className="badge bg-light text-dark ms-2">
+                {favorites.length}
+              </span>
+            </button>
+            <ul className="dropdown-menu dropdown-menu-end">
+              {favorites.length === 0 ? (
+                <li>
+                  <span className="dropdown-item text-muted">
+                    No favorites yet
+                  </span>
+                </li>
+              ) : (
+                favorites.map((item) => (
+                  <li key={item.uid}>
+                    <div className="dropdown-item d-flex justify-content-between align-items-center">
+                      {item.name}
+                      <button 
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => removeFromFavorites(item.uid)}
+                      >
+                        <i className="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </li>
+                ))
+              )}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
 };
+
+export default Navbar;
